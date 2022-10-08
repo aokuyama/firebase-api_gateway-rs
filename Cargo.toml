@@ -2,7 +2,14 @@
 name = "firebase_api_gateway"
 version = "0.1.0"
 edition = "2021"
+default-run = "firebase_api_gateway"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "lambda-container"
+path = "src/bin/lambda-container.rs"
 
 [dependencies]
+tokio = { version = "1.21", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+lambda_runtime = "0.6.0"
