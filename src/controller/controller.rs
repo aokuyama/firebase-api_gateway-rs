@@ -1,7 +1,7 @@
 type Error = Box<dyn std::error::Error>;
 use serde_json::Value;
 
-use super::{Controller, Output};
+use super::{Controller, Output, Router};
 
 #[derive(serde::Serialize)]
 struct RequestError {
@@ -12,22 +12,33 @@ struct RequestError {
 }
 
 impl Controller {
-    pub fn new() -> Self {
-        Controller{}
+    pub fn new(router: Router) -> Self {
+        Controller{router}
     }
     pub fn input(&self, path: &str, method: &http::Method, body: &Value) -> Result<Output, Error> {
-        let err = RequestError {
-            msg: "not found".to_owned(),
-            path: path.to_owned(),
-            method: method.to_string(),
-            body: body.to_string(),
+        let output = match (self.router)(path, method) {
+            Some(usecase) => {
+                Output {
+                    http_status: http::StatusCode::OK,
+                    content_type: "application/json".to_owned(),
+                    body: usecase.as_ref().invoke(),
+                }
+            },
+            None => {
+                let err = RequestError {
+                    msg: "not found".to_owned(),
+                    path: path.to_owned(),
+                    method: method.to_string(),
+                    body: body.to_string(),
+                };
+                let body = serde_json::to_string(&err).unwrap();
+                Output {
+                    http_status: http::StatusCode::NOT_FOUND,
+                    content_type: "application/json".to_owned(),
+                    body,
+                }
+            }
         };
-        let body = serde_json::to_string(&err).unwrap();
-        let o = Output {
-            http_status: http::StatusCode::NOT_FOUND,
-            content_type: "application/json".to_owned(),
-            body,
-        };
-        Ok(o)
+        Ok(output)
     }
 }

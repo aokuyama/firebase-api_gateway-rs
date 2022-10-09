@@ -9,6 +9,6 @@ async fn main() -> Result<(), Error> {
 }
 
 async fn lambda_service(event: Request) -> Result<impl IntoResponse, std::convert::Infallible> {
-    let controller = controller::Controller::new();
+    let controller = controller();
     controller::lambda_http::lambda_service(controller, event).await
 }
