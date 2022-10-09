@@ -1,18 +1,14 @@
-use serde::Serialize;
-use lambda_runtime::{LambdaEvent, Error};
+use firebase_api_gateway::controller;
+use lambda_http::{Request, Error, IntoResponse, service_fn};
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let handler_fn = lambda_runtime::service_fn(lambda_handler);
-    lambda_runtime::run(handler_fn).await?;
+    let handler = service_fn(lambda_service);
+    lambda_http::run(handler).await?;
     Ok(())
 }
 
-#[derive(Debug, Serialize)]
-pub struct LambdaResult {
-}
-
-async fn lambda_handler(event: LambdaEvent<serde_json::Value>)  -> Result<LambdaResult, Error> {
-    dbg!(event.payload.to_string());
-    Ok(LambdaResult{})
+async fn lambda_service(event: Request) -> Result<impl IntoResponse, std::convert::Infallible> {
+    let controller = controller::Controller::new();
+    controller::lambda_http::lambda_service(controller, event).await
 }

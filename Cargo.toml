@@ -9,7 +9,8 @@ name = "lambda-container"
 path = "src/bin/lambda-container.rs"
 
 [dependencies]
+http = "*"
 tokio = { version = "1.21", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-lambda_runtime = "0.6.0"
+lambda_http = "0.6.2"
