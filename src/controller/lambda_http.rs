@@ -4,6 +4,7 @@ use lambda_http::{Request, IntoResponse, Response, RequestExt, Body};
 pub async fn lambda_service(controller: Controller, request: Request) -> Result<impl IntoResponse, std::convert::Infallible> {
     let pathes = request.path_parameters();
     let raw_path = request.raw_http_path();
+    dbg!(&pathes);
     let path = match pathes.first("proxy") {
         Some(x) => x,
         None => &raw_path,
