@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  App:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: app
+      Runtime: provided
+      Handler: dummy
+      CodeUri: .
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: "/"
+            Method: ANY
+            Path: "/{proxy+}"
+            Method: ANY
+      Environment:
+        Variables:
+          RUST_LOG: info
+          RUST_BACKTRACE: 1
+          RUST_LOG_STYLE: never
+    Metadata:
+      BuildMethod: makefile

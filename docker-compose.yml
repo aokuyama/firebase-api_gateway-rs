@@ -8,3 +8,18 @@ services:
       - ./:/app
     working_dir: /app
     tty: true
+  api:
+    build:
+      context: .
+      dockerfile: ./deploy/lambda/local.dockerfile
+    volumes:
+      - ./:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /app
+    ports:
+      - ${API_PORT:-9000}:3000
+    expose:
+      - 3000
+    tty: true
+    command: /bin/bash
+    entrypoint: []
