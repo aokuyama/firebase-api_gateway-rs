@@ -6,15 +6,14 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: app
-      Runtime: provided
-      Handler: dummy
+      Handler: bootstrap.is.real.handler
+      Runtime: provided.al2
+      MemorySize: 512
       CodeUri: .
       Events:
         Api:
           Type: Api
           Properties:
-            Path: "/"
-            Method: ANY
             Path: "/{proxy+}"
             Method: ANY
       Environment:

@@ -5,8 +5,8 @@ edition = "2021"
 default-run = "firebase_api_gateway"
 
 [[bin]]
-name = "lambda-container"
-path = "src/bin/lambda-container.rs"
+name = "bootstrap"
+path = "src/bin/bootstrap.rs"
 
 [dependencies]
 http = "*"
