@@ -9,5 +9,5 @@ ln -s /usr/local/bin/x86_64-linux-musl-gcc /usr/local/bin/musl-gcc
 ビルドの後、ローカル実行
 ```
 sam build
-sam local start-api
+sam local start-api --host 0.0.0.0 -p xxxx --env-vars env.json
 ```

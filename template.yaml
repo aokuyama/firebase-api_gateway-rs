@@ -2,6 +2,23 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      DefinitionBody:
+        openapi: 3.0.1
+        info:
+          title: !Ref 'AWS::StackName'
+        paths: {}
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowCredentials: true
+        AllowMethods: 
+          - "*"
+        AllowHeaders:
+          - Content-Type
+          - Authorization
   App:
     Type: AWS::Serverless::Function
     Properties:
@@ -12,14 +29,23 @@ Resources:
       CodeUri: .
       Events:
         Api:
-          Type: Api
+          Type: HttpApi
           Properties:
+            ApiId: !Ref HttpApi
             Path: "/{proxy+}"
             Method: ANY
       Environment:
         Variables:
-          RUST_LOG: info
-          RUST_BACKTRACE: 1
-          RUST_LOG_STYLE: never
+          JWK_URL: !Ref JwkUrl
+          JWK_ISSUER: !Ref JwkIssuer
+          ACCESS_CONTROL_ALLOW_ORIGIN: !Ref AccessControlAllowOrigin
     Metadata:
       BuildMethod: makefile
+
+Parameters:
+  JwkUrl:
+    Type: String
+  JwkIssuer:
+    Type: String
+  AccessControlAllowOrigin:
+    Type: String

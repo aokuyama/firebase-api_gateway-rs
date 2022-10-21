@@ -10,3 +10,5 @@ Cargo.lock
 **/*.rs.bk
 
 .aws-sam
+.env
+env.json
