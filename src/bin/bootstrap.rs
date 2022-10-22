@@ -1,5 +1,5 @@
 use firebase_api_gateway::controller;
-use lambda_http::{Request, Error, IntoResponse, service_fn};
+use lambda_http::{service_fn, Error, IntoResponse, Request};
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
