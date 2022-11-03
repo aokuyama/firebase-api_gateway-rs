@@ -1,6 +1,6 @@
 type Error = Box<dyn std::error::Error>;
 use super::{HttpRoute, HttpRouter, Output};
-use crate::controller::{AuthError, Controller};
+use crate::controller::{AuthError, Controller, Status};
 use serde_json::Value;
 
 #[derive(serde::Serialize)]
@@ -49,13 +49,13 @@ impl HttpRouter {
     ) -> Output {
         match controller.authentication(auth_token).await {
             Ok(user) => {
-                let response = controller.input(body, &user).await;
-                self.output(response)
+                let (body, status) = controller.input(body, &user).await;
+                self.output(body, status)
             }
             Err(e) => match e {
                 AuthError::Guest => {
-                    let response = controller.input(body, &Value::Null).await;
-                    self.output(response)
+                    let (body, status) = controller.input(body, &Value::Null).await;
+                    self.output(body, status)
                 }
                 AuthError::Error => Output {
                     http_status: http::StatusCode::UNAUTHORIZED,
@@ -65,10 +65,10 @@ impl HttpRouter {
             },
         }
     }
-    fn output(&self, body: Value) -> Output {
+    fn output(&self, body: Value, status: Status) -> Output {
         match serde_json::to_string(&body) {
             Ok(body) => Output {
-                http_status: http::StatusCode::OK,
+                http_status: status_to_http(status),
                 content_type: "application/json".to_owned(),
                 body,
             },
@@ -78,5 +78,17 @@ impl HttpRouter {
                 body: "{\"msg\": \"error\"}".to_owned(),
             },
         }
+    }
+}
+fn status_to_http(status: Status) -> http::StatusCode {
+    match status {
+        Status::Ok => http::StatusCode::OK,
+        Status::Created => http::StatusCode::CREATED,
+        Status::NoContent => http::StatusCode::NO_CONTENT,
+        Status::BadRequest => http::StatusCode::BAD_REQUEST,
+        Status::Unauthorized => http::StatusCode::UNAUTHORIZED,
+        Status::Forbidden => http::StatusCode::FORBIDDEN,
+        Status::NotFound => http::StatusCode::NOT_FOUND,
+        Status::Conflict => http::StatusCode::CONFLICT,
     }
 }
