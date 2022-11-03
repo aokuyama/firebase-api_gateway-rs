@@ -24,7 +24,7 @@ pub async fn invoke(
         None => None,
     };
 
-    let response = match router.input(path, request.method(), &json, token).await {
+    let response = match router.invoke(path, request.method(), &json, token).await {
         Ok(output) => Response::builder()
             .status(output.http_status)
             .header("Content-Type", output.content_type)

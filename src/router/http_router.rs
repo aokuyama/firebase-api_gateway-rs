@@ -1,6 +1,6 @@
 type Error = Box<dyn std::error::Error>;
 use super::{HttpRoute, HttpRouter, Output};
-use crate::usecase::{AuthError, Usecase};
+use crate::controller::{AuthError, Controller};
 use serde_json::Value;
 
 #[derive(serde::Serialize)]
@@ -15,7 +15,7 @@ impl HttpRouter {
     pub fn new(route: HttpRoute) -> Self {
         HttpRouter { route }
     }
-    pub async fn input(
+    pub async fn invoke(
         &self,
         path: &str,
         method: &http::Method,
@@ -23,7 +23,7 @@ impl HttpRouter {
         auth_token: Option<&str>,
     ) -> Result<Output, Error> {
         let output = match (self.route)(path, method) {
-            Some(x) => self.invoke(x.as_ref(), body, auth_token).await,
+            Some(x) => self.input(x.as_ref(), body, auth_token).await,
             None => {
                 let err = RequestError {
                     msg: "not found".to_owned(),
@@ -41,20 +41,20 @@ impl HttpRouter {
         };
         Ok(output)
     }
-    async fn invoke(
+    async fn input(
         &self,
-        usecase: &dyn Usecase,
+        controller: &dyn Controller,
         body: &Value,
         auth_token: Option<&str>,
     ) -> Output {
-        match usecase.authentication(auth_token).await {
+        match controller.authentication(auth_token).await {
             Ok(user) => {
-                let response = usecase.invoke(body, &user).await;
+                let response = controller.input(body, &user).await;
                 self.output(response)
             }
             Err(e) => match e {
                 AuthError::Guest => {
-                    let response = usecase.invoke(body, &Value::Null).await;
+                    let response = controller.input(body, &Value::Null).await;
                     self.output(response)
                 }
                 AuthError::Error => Output {

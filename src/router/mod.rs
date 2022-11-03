@@ -1,6 +1,6 @@
-use crate::usecase::Usecase;
+use crate::controller::Controller;
 mod http_router;
-type HttpRoute = for<'r, 's> fn(&'r str, &'s http::Method) -> Option<Box<dyn Usecase>>;
+type HttpRoute = for<'r, 's> fn(&'r str, &'s http::Method) -> Option<Box<dyn Controller>>;
 
 pub struct HttpRouter {
     route: HttpRoute,
