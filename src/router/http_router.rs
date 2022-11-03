@@ -1,6 +1,6 @@
 type Error = Box<dyn std::error::Error>;
-use super::AuthError;
-use super::{Controller, Output, Router, Usecase};
+use super::{HttpRoute, HttpRouter, Output};
+use crate::usecase::{AuthError, Usecase};
 use serde_json::Value;
 
 #[derive(serde::Serialize)]
@@ -11,9 +11,9 @@ struct RequestError {
     body: String,
 }
 
-impl Controller {
-    pub fn new(router: Router) -> Self {
-        Controller { router }
+impl HttpRouter {
+    pub fn new(route: HttpRoute) -> Self {
+        HttpRouter { route }
     }
     pub async fn input(
         &self,
@@ -22,7 +22,7 @@ impl Controller {
         body: &Value,
         auth_token: Option<&str>,
     ) -> Result<Output, Error> {
-        let output = match (self.router)(path, method) {
+        let output = match (self.route)(path, method) {
             Some(x) => self.invoke(x.as_ref(), body, auth_token).await,
             None => {
                 let err = RequestError {

@@ -1,8 +1,9 @@
-use super::Controller;
 use lambda_http::{Body, IntoResponse, Request, RequestExt, Response};
 
-pub async fn lambda_service(
-    controller: Controller,
+use crate::router::HttpRouter;
+
+pub async fn invoke(
+    router: HttpRouter,
     request: Request,
 ) -> Result<impl IntoResponse, std::convert::Infallible> {
     let acao = std::env::var("ACCESS_CONTROL_ALLOW_ORIGIN")
@@ -23,7 +24,7 @@ pub async fn lambda_service(
         None => None,
     };
 
-    let response = match controller.input(path, request.method(), &json, token).await {
+    let response = match router.input(path, request.method(), &json, token).await {
         Ok(output) => Response::builder()
             .status(output.http_status)
             .header("Content-Type", output.content_type)

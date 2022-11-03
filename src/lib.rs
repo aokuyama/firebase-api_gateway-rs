@@ -1,15 +1,15 @@
-pub mod controller;
 pub mod firebase;
+pub mod lambda;
+pub mod router;
 pub mod usecase;
+use router::HttpRouter;
+use usecase::{HealthCheck, Usecase, UsersMe};
 
-use controller::{usecase::HealthCheck, Controller, Usecase};
-use usecase::users_me::UsersMe;
-
-pub fn controller() -> Controller {
-    Controller::new(router)
+pub fn create_http_router() -> HttpRouter {
+    HttpRouter::new(route)
 }
 
-fn router(path: &str, method: &http::Method) -> Option<Box<dyn Usecase>> {
+fn route(path: &str, method: &http::Method) -> Option<Box<dyn Usecase>> {
     match path {
         "health/check" => match method {
             &http::Method::POST => Some(Box::new(HealthCheck {})),

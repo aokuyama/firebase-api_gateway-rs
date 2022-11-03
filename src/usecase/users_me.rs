@@ -1,11 +1,8 @@
-use crate::{
-    controller::{AuthError, Usecase},
-    firebase::{get_claim, User},
-};
+use super::{AuthError, Usecase, UsersMe};
+use crate::firebase::{get_claim, User};
 use async_trait::async_trait;
 use serde_json::Value;
 
-pub struct UsersMe {}
 #[async_trait]
 impl Usecase for UsersMe {
     async fn authentication(&self, token: Option<&str>) -> Result<Value, AuthError> {

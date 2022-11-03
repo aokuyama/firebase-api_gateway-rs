@@ -1,4 +1,6 @@
-use firebase_api_gateway::controller;
+use firebase_api_gateway::create_http_router;
+use firebase_api_gateway::lambda;
+
 use lambda_http::{service_fn, Error, IntoResponse, Request};
 
 #[tokio::main]
@@ -8,7 +10,7 @@ async fn main() -> Result<(), Error> {
     Ok(())
 }
 
-async fn lambda_service(event: Request) -> Result<impl IntoResponse, std::convert::Infallible> {
-    let controller = controller();
-    controller::lambda_http::lambda_service(controller, event).await
+async fn lambda_service(request: Request) -> Result<impl IntoResponse, std::convert::Infallible> {
+    let router = create_http_router();
+    lambda::http::invoke(router, request).await
 }
