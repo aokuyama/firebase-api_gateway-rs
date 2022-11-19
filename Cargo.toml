@@ -17,5 +17,9 @@ lambda_http = "0.6.2"
 reqwest = { version = "0.11", features = ["json"] }
 async-trait = "0.1.58"
 alcoholic_jwt = "4091.0.0"
+axum = "0.5.11"
+axum-aws-lambda = "0.1.0"
+axum-auth = "0.3.0"
+tower-http = { version = "0.3.4", features = ["cors"] }
 [target.x86_64-unknown-linux-musl.dependencies]
 openssl = { version = "0.10.42", features = ["vendored"] }

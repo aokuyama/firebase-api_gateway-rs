@@ -1,16 +1,23 @@
-use firebase_api_gateway::create_http_router;
-use firebase_api_gateway::lambda;
-
-use lambda_http::{service_fn, Error, IntoResponse, Request};
+use firebase_api_gateway::router;
+use http::HeaderValue;
+use http::Method;
+use lambda_http::Error;
+use tower_http::cors::CorsLayer;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    let handler = service_fn(lambda_service);
-    lambda_http::run(handler).await?;
-    Ok(())
-}
+    let r = router::new();
+    let allow_origin = std::env::var("ACCESS_CONTROL_ALLOW_ORIGIN")
+        .expect("ACCESS_CONTROL_ALLOW_ORIGIN must be set");
 
-async fn lambda_service(request: Request) -> Result<impl IntoResponse, std::convert::Infallible> {
-    let router = create_http_router();
-    lambda::http::invoke(router, request).await
+    let app = lambda_http::tower::ServiceBuilder::new()
+        .layer(axum_aws_lambda::LambdaLayer::default())
+        .layer(
+            CorsLayer::new()
+                .allow_origin(allow_origin.parse::<HeaderValue>().unwrap())
+                .allow_methods(vec![Method::GET, Method::POST]),
+        )
+        .service(r);
+
+    lambda_http::run(app).await
 }
